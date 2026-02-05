@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gift Box Surprise 🎁</title>
+
+<style>
+:root {
+  --pink: #ff6f91;
+  --glass: rgba(255,255,255,0.85);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  height:100vh;
+  background: radial-gradient(circle at top, #ffe3ed, #fffbe6);
+  font-family:"Poppins", system-ui, sans-serif;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  overflow:hidden;
+}
+
+/* GIFT BOX */
+.gift-box {
+  width:210px;
+  height:210px;
+  background: linear-gradient(145deg, #ff7a9c, #ff4d70);
+  border-radius:20px;
+  position:relative;
+  cursor:pointer;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  perspective:1000px;
+  box-shadow:0 25px 45px rgba(255,111,145,.35), inset 0 2px 6px rgba(255,255,255,.4);
+  transition:.4s ease;
+}
+.gift-box:hover {
+  transform: translateY(-6px) scale(1.03);
+}
+
+/* LID */
+.gift-lid {
+  position:absolute;
+  top:0; left:0;
+  width:100%; height:50%;
+  background:linear-gradient(145deg,#ff9aa2,#ff6f91);
+  border-top-left-radius:20px;
+  border-top-right-radius:20px;
+  transform-origin: top center;
+  transition: transform 1s ease;
+  z-index:4;
+}
+.gift-box.open .gift-lid {
+  transform: rotateX(-110deg);
+  animation: lidBounce 0.8s ease forwards;
+}
+@keyframes lidBounce {
+  0%   { transform: rotateX(0deg); }
+  50%  { transform: rotateX(-120deg); }
+  70%  { transform: rotateX(-105deg); }
+  100% { transform: rotateX(-110deg); }
+}
+
+/* CARD */
+.card {
+  position:absolute;
+  width:90%;
+  padding:1.5rem;
+  background:var(--glass);
+  backdrop-filter: blur(14px);
+  border-radius:16px;
+  text-align:center;
+  opacity:0;
+  transform: translateY(40px) scale(.8);
+  transition:.8s ease;
+  z-index:3;
+}
+.gift-box.open .card {
+  opacity:1;
+  transform: translateY(-10px) scale(1);
+}
+.card h1 { color:var(--pink); margin-bottom:.5rem; }
+.card p { color:#444; }
+.card span { font-size:2rem; }
+
+/* RIBBON OUTSIDE BOX */
+.ribbon-vertical,
+.ribbon-horizontal,
+.ribbon-knot {
+  position:absolute;
+  pointer-events:none;
+  z-index:5;
+  transition: transform .8s ease, opacity .8s ease;
+}
+.ribbon-vertical {
+  width:26px; height:100%;
+  left:50%; transform:translateX(-50%);
+  background:linear-gradient(145deg,#ffe3ed,#ffc2d1);
+}
+.ribbon-horizontal {
+  height:26px; width:100%;
+  top:50%; transform:translateY(-50%);
+  background:linear-gradient(145deg,#ffe3ed,#ffc2d1);
+}
+.ribbon-knot {
+  width:40px; height:40px;
+  border-radius:50%;
+  background: radial-gradient(circle at top left,#fff,#ffc2d1);
+  box-shadow:0 6px 12px rgba(0,0,0,.15);
+  top:50%; left:50%;
+  transform:translate(-50%,-50%);
+}
+
+/* RIBBON FLY OFF */
+.gift-box.open .ribbon-vertical {
+  transform: translateX(-50%) translateY(-300px) rotate(45deg); opacity:0;
+}
+.gift-box.open .ribbon-horizontal {
+  transform: translateY(-50%) translateX(-300px) rotate(-45deg); opacity:0;
+}
+.gift-box.open .ribbon-knot {
+  transform: translate(-50%,-50%) translateY(-300px) scale(.5) rotate(720deg); opacity:0;
+}
+
+/* PARTICLES */
+.petal,.confetti,.star { position:absolute; pointer-events:none; }
+.petal { font-size:24px; animation: petalFall linear infinite; }
+@keyframes petalFall {
+  from {transform:translateY(-12vh) rotate(0deg);opacity:1;}
+  to {transform:translateY(110vh) rotate(540deg);opacity:.2;}
+}
+.confetti {
+  width:10px;height:18px;
+  border-radius:3px;
+  opacity:0.85;
+  animation: confettiFall linear infinite;
+}
+@keyframes confettiFall {
+  from {transform: translateY(-10vh) rotate(0deg);}
+  to {transform: translateY(110vh) rotate(720deg);}
+}
+.star {
+  width:7px;height:7px;
+  background:white;
+  border-radius:50%;
+  box-shadow:0 0 12px gold;
+  animation: twinkle 3s infinite ease-in-out;
+  z-index:0;
+}
+@keyframes twinkle {
+  0%,100% { opacity:.3; }
+  50% { opacity:1; }
+}
+</style>
+</head>
+
+<body>
+
+<div class="gift-box" id="giftBox">
+
+  <div class="gift-lid"></div>
+
+  <!-- Ribbons outside -->
+  <div class="ribbon-vertical"></div>
+  <div class="ribbon-horizontal"></div>
+  <div class="ribbon-knot"></div>
+
+  <div class="card">
+    <h1>Get Well Soon 🌸</h1>
+    <p>Madam ji, phir ice cream bi khana hai 💖</p>
+    <span class="ice-cream">🍦</span>
+  </div>
+
+</div>
+
+<!-- SUBTLE SPARKLE SOUND -->
+<audio id="sparkleSound" preload="auto" src="https://orangefreesounds.com/wp-content/uploads/2025/11/Light-sparkling-twinkle-sound-effect.mp3"></audio> <!-- free sparkle effect; gentle twinkle ✨ :contentReference[oaicite:1]{index=1} -->
+
+<script>
+const giftBox = document.getElementById("giftBox");
+const sparkleSound = document.getElementById("sparkleSound");
+
+giftBox.addEventListener("click", () => {
+  if (giftBox.classList.contains("open")) return;
+
+  // play sparkle sound
+  sparkleSound.currentTime = 0;
+  sparkleSound.play().catch(e => console.log("Sound play blocked", e));
+
+  giftBox.classList.add("open");
+
+  const petalsArr = ["🌸","🌷","🌼","🌺"];
+  for (let i = 0; i < 35; i++) {
+    const petal = document.createElement("div");
+    petal.className = "petal";
+    petal.innerText = petalsArr[Math.floor(Math.random()*petalsArr.length)];
+    petal.style.left = Math.random()*100 + "vw";
+    petal.style.top = "-10vh";
+    petal.style.animationDuration = 7 + Math.random()*6 + "s";
+    petal.style.animationDelay = Math.random()*3 + "s";
+    document.body.appendChild(petal);
+  }
+
+  const colors = ["#ff6f91","#ffd6a5","#bde0fe","#cdb4db"];
+  for (let i = 0; i < 45; i++) {
+    const confetti = document.createElement("div");
+    confetti.className = "confetti";
+    confetti.style.left = Math.random()*100 + "vw";
+    confetti.style.top = "-10vh";
+    confetti.style.backgroundColor = colors[Math.floor(Math.random()*colors.length)];
+    confetti.style.animationDuration = 5 + Math.random()*4 + "s";
+    confetti.style.animationDelay = Math.random()*3 + "s";
+    document.body.appendChild(confetti);
+  }
+
+  for (let i = 0; i < 60; i++) {
+    const star = document.createElement("div");
+    star.className = "star";
+    star.style.top = Math.random()*100 + "vh";
+    star.style.left = Math.random()*100 + "vw";
+    star.style.animationDelay = Math.random()*3 + "s";
+    document.body.appendChild(star);
+  }
+});
+</script>
+
+</body>
+</html>
